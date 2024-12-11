@@ -3,6 +3,8 @@ package main
 import (
     "net/http"
     "github.com/gin-gonic/gin"
+    "pomodoro-app/authentication-service/config"
+	"pomodoro-app/authentication-service/db"
 )
 
 type user struct {
@@ -33,6 +35,10 @@ func main() {
     router := gin.Default()
     router.GET("/users", getUsers)
     router.POST("/register", register)
+    config.LoadEnv()
+    connStr := config.GetDBConnectionString()
+    database := db.Connect(connStr)
+	defer database.Close()
 
     router.Run("localhost:8080")
 }
