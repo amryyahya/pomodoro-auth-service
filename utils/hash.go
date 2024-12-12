@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bytes"
@@ -37,24 +37,24 @@ func VerifyPassword(password string, hash, salt []byte) bool {
 	return bytes.Equal(newHash, hash)
 }
 
-func main() {
-	password := "my_secure_password"
+// func main() {
+// 	password := "my_secure_password"
 
-	// Hash the password
-	hash, salt, err := HashPassword(password)
-	if err != nil {
-		fmt.Printf("Error hashing password: %v\n", err)
-		return
-	}
+// 	// Hash the password
+// 	hash, salt, err := HashPassword(password)
+// 	if err != nil {
+// 		fmt.Printf("Error hashing password: %v\n", err)
+// 		return
+// 	}
 
-	fmt.Printf("Hash: %x\n", hash)
-	fmt.Printf("Salt: %x\n", salt)
+// 	fmt.Printf("Hash: %x\n", hash)
+// 	fmt.Printf("Salt: %x\n", salt)
 
-	// Verify the password
-	isValid := VerifyPassword(password, hash, salt)
-	if isValid {
-		fmt.Println("Password verification successful!")
-	} else {
-		fmt.Println("Password verification failed!")
-	}
-}
+// 	// Verify the password
+// 	isValid := VerifyPassword(password, hash, salt)
+// 	if isValid {
+// 		fmt.Println("Password verification successful!")
+// 	} else {
+// 		fmt.Println("Password verification failed!")
+// 	}
+// }
