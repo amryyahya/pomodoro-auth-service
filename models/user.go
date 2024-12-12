@@ -6,7 +6,7 @@ import (
 
 type User struct {
     Email           string  `json:"email"`
-    HashedPassword  string  `json:"hashedPassword"`
+    Password	 	string  `json:"password"`
 }
 
 func InsertUser(db *sql.DB, email string, hashedPassword, salt []byte) error {
