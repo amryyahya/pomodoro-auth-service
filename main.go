@@ -32,7 +32,7 @@ func register(c *gin.Context) {
 	}
     models.InsertUser(database,newUser.Email,hashedPassword,salt)
 	defer database.Close()
-    c.IndentedJSON(http.StatusCreated, "hahahaha")
+    c.IndentedJSON(http.StatusCreated, "User has been registered")
 }
 
 func main() {
