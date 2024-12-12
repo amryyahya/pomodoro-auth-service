@@ -44,7 +44,14 @@ func login(c *gin.Context) {
     }
     isValid := utils.VerifyPassword(user.Password,hashedPassword,salt)
     if isValid {
-        c.IndentedJSON(http.StatusCreated, gin.H{"message": "Login Success"})
+        accessSecret,refreshSecret := config.GetJWTSecret()
+        accessToken, refreshToken, err := utils.GenerateTokens(user.Email,accessSecret,refreshSecret)
+        if err!=nil {
+            fmt.Println(err)
+            c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+            return
+        }
+        c.IndentedJSON(http.StatusCreated, gin.H{"access-token":accessToken,"refresh-token":refreshToken})
     } else {
         c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Wrong Password"})
     }
@@ -70,8 +77,16 @@ func register(c *gin.Context) {
         fmt.Print(err)
         c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
         return
-    } 
-    c.IndentedJSON(http.StatusCreated, gin.H{"message" : "Register Success"})
+    } else {
+        accessSecret,refreshSecret := config.GetJWTSecret()
+        accessToken, refreshToken, err := utils.GenerateTokens(newUser.Email,accessSecret,refreshSecret)
+        if err!=nil {
+            fmt.Println(err)
+            c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+            return
+        }
+        c.IndentedJSON(http.StatusCreated, gin.H{"access-token":accessToken,"refresh-token":refreshToken})
+    }
     
 }
 
