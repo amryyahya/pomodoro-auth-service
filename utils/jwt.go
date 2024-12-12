@@ -7,20 +7,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var (
-	accessSecret  = []byte("your-access-secret")  // Secret for access tokens
-	refreshSecret = []byte("your-refresh-secret") // Secret for refresh tokens
-)
-
 // GenerateTokens generates an access token and a refresh token for a given email
-func GenerateTokens(email string) (string, string, error) {
+func GenerateTokens(email string, accessSecret string, refreshSecret string) (string, string, error) {
 	// Generate Access Token
 	accessToken := jwt.New(jwt.SigningMethodHS256)
 	accessClaims := accessToken.Claims.(jwt.MapClaims)
 	accessClaims["email"] = email
 	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix() // Access token expires in 15 minutes
 
-	accessTokenString, err := accessToken.SignedString(accessSecret)
+	accessTokenString, err := accessToken.SignedString([]byte(accessSecret))
 	if err != nil {
 		return "", "", err
 	}
@@ -31,7 +26,7 @@ func GenerateTokens(email string) (string, string, error) {
 	refreshClaims["email"] = email
 	refreshClaims["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix() // Refresh token expires in a month
 
-	refreshTokenString, err := refreshToken.SignedString(refreshSecret)
+	refreshTokenString, err := refreshToken.SignedString([]byte(refreshSecret))
 	if err != nil {
 		return "", "", err
 	}
@@ -40,9 +35,9 @@ func GenerateTokens(email string) (string, string, error) {
 }
 
 // RefreshAccessToken refreshes an access token using a refresh token
-func RefreshAccessToken(refreshTokenString string) (string, error) {
+func RefreshAccessToken(refreshTokenString string,accessSecret string, refreshSecret string) (string, error) {
 	// Validate the refresh token
-	claims, err := ValidateToken(refreshTokenString, refreshSecret)
+	claims, err := ValidateToken(refreshTokenString, []byte(refreshSecret))
 	if err != nil {
 		return "", fmt.Errorf("invalid refresh token: %w", err)
 	}
@@ -59,7 +54,7 @@ func RefreshAccessToken(refreshTokenString string) (string, error) {
 	newAccessClaims["email"] = email
 	newAccessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix() // New access token expires in 15 minutes
 
-	return newAccessToken.SignedString(accessSecret)
+	return newAccessToken.SignedString([]byte(accessSecret))
 }
 
 
