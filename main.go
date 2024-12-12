@@ -1,16 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"pomodoro-app/authentication-service/config"
 	"pomodoro-app/authentication-service/db"
 	"pomodoro-app/authentication-service/models"
+	"pomodoro-app/authentication-service/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
 // func getUsers(c *gin.Context) {
 //     c.IndentedJSON(http.StatusOK, users)
 // }
+
+
 
 func register(c *gin.Context) {
     var newUser models.User
@@ -20,7 +25,12 @@ func register(c *gin.Context) {
     config.LoadEnv()
     connStr := config.GetDBConnectionString()
     database := db.Connect(connStr)
-    models.InsertUser(database,newUser.Email,[]byte{1,2,3},[]byte{4,5})
+    hashedPassword, salt, err := utils.HashPassword(newUser.Password)
+	if err != nil {
+		fmt.Printf("Error hashing password: %v\n", err)
+		return
+	}
+    models.InsertUser(database,newUser.Email,hashedPassword,salt)
 	defer database.Close()
     c.IndentedJSON(http.StatusCreated, "hahahaha")
 }
