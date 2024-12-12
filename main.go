@@ -23,17 +23,24 @@ func init(){
 func login(c *gin.Context) {
     var user models.User
     if err := c.BindJSON(&user); err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
         return
     }
     database := dbPool
-    isUserExisted, _ := models.CheckIfEmailExist(database, user.Email)
+    isUserExisted, err := models.CheckIfEmailExist(database, user.Email)
+    if err != nil {
+        fmt.Print(err)
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    }
     if !isUserExisted {
         c.IndentedJSON(http.StatusBadRequest, gin.H{"error":"User not Found"})
         return
     }
     hashedPassword, salt, err := models.GetUserCredByEmail(database, user.Email)
     if err != nil {
-        fmt.Println(err)
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
+        return
     }
     isValid := utils.VerifyPassword(user.Password,hashedPassword,salt)
     if isValid {
@@ -60,12 +67,11 @@ func register(c *gin.Context) {
     hashedPassword, salt, _ := utils.HashPassword(newUser.Password)
     err := models.InsertUser(database,newUser.Email,hashedPassword,salt)
     if err!=nil {
-        println(err)
+        fmt.Print(err)
         c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
         return
     } 
     c.IndentedJSON(http.StatusCreated, gin.H{"message" : "Register Success"})
-    
     
 }
 

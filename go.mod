@@ -24,7 +24,8 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/gohugoio/hugo v0.134.3 // indirect
+	github.com/gohugoio/hugo v0.55.6 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
@@ -36,7 +37,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
-	github.com/spf13/afero v1.11.0 // indirect
+	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 	github.com/tdewolff/parse/v2 v2.7.15 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
