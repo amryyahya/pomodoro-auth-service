@@ -11,13 +11,5 @@ func Connect(connStr string) *sql.DB {
 	if err != nil {
 		log.Fatalf("Unable to connect to the database: %v", err)
 	}
-
-	// Test the connection
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Unable to ping the database: %v", err)
-	}
-
-	log.Println("Successfully connected to the database!")
 	return db
 }
