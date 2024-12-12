@@ -25,3 +25,7 @@ func GetDBConnectionString() string {
 		os.Getenv("DB_SSLMODE"),
 	)
 }
+
+func GetJWTSecret() (string,string) {
+	return os.Getenv("ACCESS_SECRET_KEY"),os.Getenv("REFRESH_SECRET_KEY")
+}
