@@ -2,10 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"errors"
-	"fmt"
-
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" 
 )
 
 type User struct {
@@ -13,23 +10,24 @@ type User struct {
 	Password string `json:"password"`
 }
 
+func CheckIfEmailExist(db *sql.DB, email string) (bool, error) {
+	query := `SELECT 1 FROM users WHERE email = $1 LIMIT 1`
+	var exists bool
+	err := db.QueryRow(query, email).Scan(&exists)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func InsertUser(db *sql.DB, email string, hashedPassword, salt []byte) error {
 	query := `INSERT INTO users (email, hashed_password, salt) VALUES ($1, $2, $3)`
 	_, err := db.Exec(query, email, hashedPassword, salt)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			if pqErr.Code == "23505" {
-				// Handle unique email violation
-				fmt.Printf("Unique constraint violation: %s\n", pqErr.Detail)
-				return errors.New("your email has already been registered")
-			} else {
-				fmt.Printf("PostgreSQL error: %s\n", pqErr.Message)
-				return errors.New("Registration Failed Failed")
-			}
-		} else {
-			fmt.Printf("Failed to execute query: %v\n", err)
-			return errors.New("Registration Failed Failed")
-		}
+		return err
 	}
 	return nil
 }
