@@ -90,11 +90,32 @@ func register(c *gin.Context) {
     
 }
 
+func refresh(c *gin.Context) {
+    var requestData map[string]interface{}
+
+    // Bind the JSON request body to a map
+    if err := c.BindJSON(&requestData); err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
+        return
+    }
+    refreshToken := requestData["refresh-token"].(string)
+    accessSecret,refreshSecret := config.GetJWTSecret()
+    newAccessToken, err := utils.RefreshAccessToken(refreshToken, accessSecret, refreshSecret)
+    if err != nil{
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    } else {
+        c.IndentedJSON(http.StatusCreated, gin.H{"access-token":newAccessToken})
+    }
+
+}
+
 func main() {
     router := gin.Default()
 
     router.POST("/login", login)
     router.POST("/register", register)
+    router.POST("/login/refresh", refresh)
 
     router.Run("localhost:8000")
 }
