@@ -45,13 +45,20 @@ func login(c *gin.Context) {
     isValid := utils.VerifyPassword(user.Password,hashedPassword,salt)
     if isValid {
         accessSecret,refreshSecret := config.GetJWTSecret()
-        accessToken, refreshToken, err := utils.GenerateTokens(user.Email,accessSecret,refreshSecret)
+        user_id, err := models.GetUserIDByEmail(database, user.Email)
+        if err != nil {
+            fmt.Println(err)
+            c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+            return
+        }
+        fmt.Printf("User ID: %s\n", user_id)
+        accessToken, refreshToken, err := utils.GenerateTokens(user_id,accessSecret,refreshSecret)
         if err!=nil {
             fmt.Println(err)
             c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
             return
         }
-        c.IndentedJSON(http.StatusCreated, gin.H{"access-token":accessToken,"refresh-token":refreshToken})
+        c.IndentedJSON(http.StatusAccepted, gin.H{"access-token":accessToken,"refresh-token":refreshToken})
     } else {
         c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Wrong Password"})
     }
