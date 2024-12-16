@@ -51,7 +51,6 @@ func login(c *gin.Context) {
             c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
             return
         }
-        fmt.Printf("User ID: %s\n", user_id)
         accessToken, refreshToken, err := utils.GenerateTokens(user_id,accessSecret,refreshSecret)
         if err!=nil {
             fmt.Println(err)
@@ -86,7 +85,13 @@ func register(c *gin.Context) {
         return
     } else {
         accessSecret,refreshSecret := config.GetJWTSecret()
-        accessToken, refreshToken, err := utils.GenerateTokens(newUser.Email,accessSecret,refreshSecret)
+        user_id, err := models.GetUserIDByEmail(database, newUser.Email)
+        if err != nil {
+            fmt.Println(err)
+            c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+            return
+        }
+        accessToken, refreshToken, err := utils.GenerateTokens(user_id,accessSecret,refreshSecret)
         if err!=nil {
             fmt.Println(err)
             c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
