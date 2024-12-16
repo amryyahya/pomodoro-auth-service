@@ -42,3 +42,13 @@ func GetUserCredByEmail(db *sql.DB, email string) ([]byte, []byte, error) {
 	}
 	return hashedPassword, salt, nil
 }
+
+func GetUserIDByEmail(db *sql.DB, email string) (string, error) {
+	query := `SELECT id FROM users WHERE email = $1`
+	row := db.QueryRow(query, email)
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return "", err
+	}
+	return id, nil
+}
