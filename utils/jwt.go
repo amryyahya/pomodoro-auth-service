@@ -43,15 +43,15 @@ func RefreshAccessToken(refreshTokenString string,accessSecret string, refreshSe
 	}
 
 	// Extract email
-	email, ok := claims["email"].(string)
-	if !ok || email == "" {
-		return "", fmt.Errorf("invalid email in token")
+	user_id, ok := claims["user_id"].(string)
+	if !ok || user_id == "" {
+		return "", fmt.Errorf("invalid user_id in token")
 	}
 
 	// Generate a new access token
 	newAccessToken := jwt.New(jwt.SigningMethodHS256)
 	newAccessClaims := newAccessToken.Claims.(jwt.MapClaims)
-	newAccessClaims["email"] = email
+	newAccessClaims["user_id"] = user_id
 	newAccessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix() // New access token expires in 15 minutes
 
 	return newAccessToken.SignedString([]byte(accessSecret))
