@@ -42,7 +42,6 @@ func RefreshAccessToken(refreshTokenString string,accessSecret string, refreshSe
 		return "", fmt.Errorf("invalid refresh token: %w", err)
 	}
 
-	// Extract email
 	user_id, ok := claims["user_id"].(string)
 	if !ok || user_id == "" {
 		return "", fmt.Errorf("invalid user_id in token")
