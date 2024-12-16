@@ -7,12 +7,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// GenerateTokens generates an access token and a refresh token for a given email
-func GenerateTokens(email string, accessSecret string, refreshSecret string) (string, string, error) {
+// GenerateTokens generates an access token and a refresh token for a given user_id
+func GenerateTokens(user_id string, accessSecret string, refreshSecret string) (string, string, error) {
 	// Generate Access Token
 	accessToken := jwt.New(jwt.SigningMethodHS256)
 	accessClaims := accessToken.Claims.(jwt.MapClaims)
-	accessClaims["email"] = email
+	accessClaims["user_id"] = user_id
 	accessClaims["exp"] = time.Now().Add(time.Minute * 15).Unix() // Access token expires in 15 minutes
 
 	accessTokenString, err := accessToken.SignedString([]byte(accessSecret))
@@ -23,7 +23,7 @@ func GenerateTokens(email string, accessSecret string, refreshSecret string) (st
 	// Generate Refresh Token
 	refreshToken := jwt.New(jwt.SigningMethodHS256)
 	refreshClaims := refreshToken.Claims.(jwt.MapClaims)
-	refreshClaims["email"] = email
+	refreshClaims["user_id"] = user_id
 	refreshClaims["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix() // Refresh token expires in a month
 
 	refreshTokenString, err := refreshToken.SignedString([]byte(refreshSecret))
