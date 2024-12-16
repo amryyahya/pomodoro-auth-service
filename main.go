@@ -125,9 +125,9 @@ func refresh(c *gin.Context) {
 func main() {
     router := gin.Default()
 
-    router.POST("/login", login)
-    router.POST("/register", register)
-    router.POST("/login/refresh", refresh)
+    router.POST("/api/v1/login", login)
+    router.POST("/api/v1/register", register)
+    router.POST("/api/v1/login/refresh", refresh)
 
     router.Run("localhost:8000")
 }
