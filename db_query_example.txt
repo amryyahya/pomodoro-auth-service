@@ -1,0 +1,6 @@
+CREATE TABLE token_blacklist (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    expiry_time TIMESTAMP NOT NULL
+);
