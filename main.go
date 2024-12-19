@@ -138,8 +138,6 @@ func logout(c *gin.Context) {
         c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
         return
     }
-    fmt.Println(claims["exp"])
-    fmt.Println(claims["user_id"].(string))
     database := dbPool
     err = utils.BlacklistToken(database, claims["user_id"].(string), refreshToken, claims["exp"].(float64))
     if err != nil {
