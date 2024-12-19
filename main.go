@@ -131,22 +131,23 @@ func logout(c *gin.Context) {
     }
     refreshToken := requestData["refresh-token"].(string)
     _,refreshSecret := config.GetJWTSecret()
-    expiration_time,err := utils.ExtractExpiry(refreshToken, []byte(refreshSecret))
+    claims,err := utils.ValidateToken(refreshToken, []byte(refreshSecret))
 
-    if err := c.BindJSON(&requestData); err != nil {
-        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
-        return
-    }
-
-    data, err := utils.ValidateToken(refreshToken, []byte(refreshSecret))
     if err != nil {
         fmt.Println(err)
         c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
         return
     }
-    fmt.Println(expiration_time)
-    fmt.Println(data["user_id"].(string))
-    // err := utils.BlacklistToken(database,)
+    fmt.Println(claims["exp"])
+    fmt.Println(claims["user_id"].(string))
+    database := dbPool
+    err = utils.BlacklistToken(database, claims["user_id"].(string), refreshToken, claims["exp"].(float64))
+    if err != nil {
+        fmt.Println(err)
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    }
+    c.IndentedJSON(http.StatusAccepted, gin.H{"message":"logout success"})
 }
 
 func main() {
