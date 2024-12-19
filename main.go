@@ -121,6 +121,29 @@ func refresh(c *gin.Context) {
 
 }
 
+func validate(c *gin.Context) {
+    var requestData map[string]interface{}
+
+    if err := c.BindJSON(&requestData); err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
+        return
+    }
+    database := dbPool
+
+    refreshToken := requestData["refresh-token"].(string)
+    tokenInvalid, err:= utils.IsTokenBlacklisted(database, refreshToken)
+    if err != nil {
+        fmt.Println(err)
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    }
+    if tokenInvalid {
+        c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": "Token is Invalid"})
+        return
+    }
+    c.IndentedJSON(http.StatusAccepted, gin.H{"message": "Valid"})
+}
+
 func logout(c *gin.Context) {
     var requestData map[string]interface{}
 
@@ -154,7 +177,7 @@ func main() {
     router.POST("/api/v1/login", login)
     router.POST("/api/v1/register", register)
     router.POST("/api/v1/login/refresh", refresh)
+    router.POST("/api/v1/login/validate", validate)
     router.POST("/api/v1/logout", logout)
-
     router.Run("localhost:8000")
 }
