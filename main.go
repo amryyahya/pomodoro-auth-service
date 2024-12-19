@@ -71,7 +71,6 @@ func register(c *gin.Context) {
     }
     database := dbPool
     isUserExisted, _ := models.CheckIfEmailExist(database, newUser.Email)
-    fmt.Print(isUserExisted)
 	if isUserExisted {
 		c.IndentedJSON(http.StatusConflict, gin.H{"error":"Email Has Been Registered"})
         return
@@ -122,12 +121,41 @@ func refresh(c *gin.Context) {
 
 }
 
+func logout(c *gin.Context) {
+    var requestData map[string]interface{}
+
+    // Bind the JSON request body to a map
+    if err := c.BindJSON(&requestData); err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input"})
+        return
+    }
+    refreshToken := requestData["refresh-token"].(string)
+    _,refreshSecret := config.GetJWTSecret()
+    expiration_time,err := utils.ExtractExpiry(refreshToken, []byte(refreshSecret))
+
+    if err := c.BindJSON(&requestData); err != nil {
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    }
+
+    data, err := utils.ValidateToken(refreshToken, []byte(refreshSecret))
+    if err != nil {
+        fmt.Println(err)
+        c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Server Error"})
+        return
+    }
+    fmt.Println(expiration_time)
+    fmt.Println(data["user_id"].(string))
+    // err := utils.BlacklistToken(database,)
+}
+
 func main() {
     router := gin.Default()
 
     router.POST("/api/v1/login", login)
     router.POST("/api/v1/register", register)
     router.POST("/api/v1/login/refresh", refresh)
+    router.POST("/api/v1/logout", logout)
 
     router.Run("localhost:8000")
 }
