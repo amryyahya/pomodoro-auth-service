@@ -76,3 +76,25 @@ func ValidateToken(tokenString string, secret []byte) (jwt.MapClaims, error) {
 
 	return claims, nil
 }
+
+func ExtractExpiry(tokenString string, secret []byte) (*time.Time, error) {
+	claims, err := ValidateToken(tokenString, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	expClaim, ok := claims["exp"]
+	if !ok {
+		return nil, fmt.Errorf("expiration claim (exp) not found")
+	}
+
+	expFloat, ok := expClaim.(float64) // JWT exp is typically a float64
+	if !ok {
+		return nil, fmt.Errorf("invalid expiration claim format")
+	}
+
+	// Convert the exp value (Unix timestamp) to a Go time.Time
+	expirationTime := time.Unix(int64(expFloat), 0)
+
+	return &expirationTime, nil
+}
